@@ -50,9 +50,7 @@ struct AllowRight(bool);
 struct ActivePiece;
 
 #[derive(Component)]
-struct Block {
-    pivot: u32
-}
+struct Block;
 
 #[derive(Bundle)]
 struct BlockBundle {
@@ -61,9 +59,9 @@ struct BlockBundle {
 }
 
 impl BlockBundle {
-    fn new(x: f32, y: f32, color: Color, pivot: u32) -> Self {
+    fn new(x: f32, y: f32, color: Color) -> Self {
         Self {
-            block: Block { pivot },
+            block: Block,
             sprite: SpriteBundle {
                 transform: Transform {
                     translation: Vec3::new(x, y, 0.0),
@@ -82,52 +80,87 @@ impl BlockBundle {
 
 impl ActivePiece {
     fn spawn_o(mut commands: Commands, color : Color, spawn_pos: Vec2) {
-        commands.spawn((BlockBundle::new(spawn_pos.x, spawn_pos.y, color, 0), ActivePiece));
-        commands.spawn((BlockBundle::new(spawn_pos.x + BLOCK_SIZE, spawn_pos.y, color, 0), ActivePiece));
-        commands.spawn((BlockBundle::new(spawn_pos.x, spawn_pos.y + BLOCK_SIZE, color, 0), ActivePiece));
-        commands.spawn((BlockBundle::new(spawn_pos.x + BLOCK_SIZE, spawn_pos.y + BLOCK_SIZE, color, 0), ActivePiece));
+        commands
+            .spawn(SpatialBundle::default())
+            .insert(ActivePiece)
+            .with_children(|parent| {
+                parent.spawn(BlockBundle::new(spawn_pos.x, spawn_pos.y, color));
+                parent.spawn(BlockBundle::new(spawn_pos.x + BLOCK_SIZE, spawn_pos.y, color));
+                parent.spawn(BlockBundle::new(spawn_pos.x, spawn_pos.y + BLOCK_SIZE, color));
+                parent.spawn(BlockBundle::new(spawn_pos.x + BLOCK_SIZE, spawn_pos.y + BLOCK_SIZE, color));
+            });
     }
 
     fn spawn_i(mut commands: Commands, color : Color, spawn_pos: Vec2) {
-        commands.spawn((BlockBundle::new(spawn_pos.x, spawn_pos.y, color, 0), ActivePiece));
-        commands.spawn((BlockBundle::new(spawn_pos.x, spawn_pos.y + BLOCK_SIZE, color, 0), ActivePiece));
-        commands.spawn((BlockBundle::new(spawn_pos.x, spawn_pos.y + BLOCK_SIZE * 2.0, color, 0), ActivePiece));
-        commands.spawn((BlockBundle::new(spawn_pos.x, spawn_pos.y + BLOCK_SIZE * 3.0, color, 0), ActivePiece));
+        commands
+            .spawn(SpatialBundle::default())
+            .insert(ActivePiece)
+            .with_children(|parent| {
+                parent.spawn(BlockBundle::new(spawn_pos.x, spawn_pos.y, color));
+                parent.spawn(BlockBundle::new(spawn_pos.x, spawn_pos.y + BLOCK_SIZE, color));
+                parent.spawn(BlockBundle::new(spawn_pos.x, spawn_pos.y + BLOCK_SIZE * 2.0, color));
+                parent.spawn(BlockBundle::new(spawn_pos.x, spawn_pos.y + BLOCK_SIZE * 3.0, color));
+            });
     }
 
     fn spawn_s(mut commands: Commands, color : Color, spawn_pos: Vec2) {
-        commands.spawn((BlockBundle::new(spawn_pos.x, spawn_pos.y, color, 1), ActivePiece));
-        commands.spawn((BlockBundle::new(spawn_pos.x + BLOCK_SIZE, spawn_pos.y, color, 1), ActivePiece));
-        commands.spawn((BlockBundle::new(spawn_pos.x + BLOCK_SIZE, spawn_pos.y + BLOCK_SIZE, color, 1), ActivePiece));
-        commands.spawn((BlockBundle::new(spawn_pos.x + BLOCK_SIZE * 2.0, spawn_pos.y + BLOCK_SIZE, color, 1), ActivePiece));
+        commands
+            .spawn(SpatialBundle::default())
+            .insert(ActivePiece)
+            .with_children(|parent| {
+                parent.spawn(BlockBundle::new(spawn_pos.x, spawn_pos.y + BLOCK_SIZE, color));
+                parent.spawn(BlockBundle::new(spawn_pos.x + BLOCK_SIZE, spawn_pos.y + BLOCK_SIZE, color));
+                parent.spawn(BlockBundle::new(spawn_pos.x + BLOCK_SIZE, spawn_pos.y, color));
+                parent.spawn(BlockBundle::new(spawn_pos.x + BLOCK_SIZE * 2.0, spawn_pos.y, color));
+            });
     }
 
     fn spawn_z(mut commands: Commands, color : Color, spawn_pos: Vec2) {
-        commands.spawn((BlockBundle::new(spawn_pos.x, spawn_pos.y + BLOCK_SIZE, color, 1), ActivePiece));
-        commands.spawn((BlockBundle::new(spawn_pos.x + BLOCK_SIZE, spawn_pos.y + BLOCK_SIZE, color, 1), ActivePiece));
-        commands.spawn((BlockBundle::new(spawn_pos.x + BLOCK_SIZE, spawn_pos.y, color, 1), ActivePiece));
-        commands.spawn((BlockBundle::new(spawn_pos.x + BLOCK_SIZE * 2.0, spawn_pos.y, color, 1), ActivePiece));
+        commands
+            .spawn(SpatialBundle::default())
+            .insert(ActivePiece)
+            .with_children(|parent| {
+                parent.spawn(BlockBundle::new(spawn_pos.x, spawn_pos.y, color));
+                parent.spawn(BlockBundle::new(spawn_pos.x + BLOCK_SIZE, spawn_pos.y, color));
+                parent.spawn(BlockBundle::new(spawn_pos.x + BLOCK_SIZE, spawn_pos.y + BLOCK_SIZE, color));
+                parent.spawn(BlockBundle::new(spawn_pos.x + BLOCK_SIZE * 2.0, spawn_pos.y + BLOCK_SIZE, color));
+            });
     }
 
     fn spawn_l(mut commands: Commands, color : Color, spawn_pos: Vec2) {
-        commands.spawn((BlockBundle::new(spawn_pos.x, spawn_pos.y, color, 1), ActivePiece));
-        commands.spawn((BlockBundle::new(spawn_pos.x, spawn_pos.y + BLOCK_SIZE, color, 1), ActivePiece));
-        commands.spawn((BlockBundle::new(spawn_pos.x, spawn_pos.y + BLOCK_SIZE * 2.0, color, 1), ActivePiece));
-        commands.spawn((BlockBundle::new(spawn_pos.x + BLOCK_SIZE, spawn_pos.y + BLOCK_SIZE * 2.0, color, 1), ActivePiece));
+        commands
+            .spawn(SpatialBundle::default())
+            .insert(ActivePiece)
+            .with_children(|parent| {
+                parent.spawn(BlockBundle::new(spawn_pos.x, spawn_pos.y, color));
+                parent.spawn(BlockBundle::new(spawn_pos.x, spawn_pos.y + BLOCK_SIZE, color));
+                parent.spawn(BlockBundle::new(spawn_pos.x, spawn_pos.y + BLOCK_SIZE * 2.0, color));
+                parent.spawn(BlockBundle::new(spawn_pos.x + BLOCK_SIZE, spawn_pos.y + BLOCK_SIZE * 2.0, color));
+            });
     }
 
     fn spawn_j(mut commands: Commands, color : Color, spawn_pos: Vec2) {
-        commands.spawn((BlockBundle::new(spawn_pos.x, spawn_pos.y + BLOCK_SIZE * 2.0, color, 1), ActivePiece));
-        commands.spawn((BlockBundle::new(spawn_pos.x + BLOCK_SIZE, spawn_pos.y, color, 1), ActivePiece));
-        commands.spawn((BlockBundle::new(spawn_pos.x + BLOCK_SIZE, spawn_pos.y + BLOCK_SIZE, color, 1), ActivePiece));
-        commands.spawn((BlockBundle::new(spawn_pos.x + BLOCK_SIZE, spawn_pos.y + BLOCK_SIZE * 2.0, color, 1), ActivePiece));
+        commands
+            .spawn(SpatialBundle::default())
+            .insert(ActivePiece)
+            .with_children(|parent| {
+                parent.spawn(BlockBundle::new(spawn_pos.x, spawn_pos.y, color));
+                parent.spawn(BlockBundle::new(spawn_pos.x, spawn_pos.y + BLOCK_SIZE, color));
+                parent.spawn(BlockBundle::new(spawn_pos.x, spawn_pos.y + BLOCK_SIZE * 2.0, color));
+                parent.spawn(BlockBundle::new(spawn_pos.x + BLOCK_SIZE, spawn_pos.y, color));
+            });
     }
 
     fn spawn_t(mut commands: Commands, color : Color, spawn_pos: Vec2) {
-        commands.spawn((BlockBundle::new(spawn_pos.x, spawn_pos.y, color, 1), ActivePiece));
-        commands.spawn((BlockBundle::new(spawn_pos.x + BLOCK_SIZE, spawn_pos.y, color, 1), ActivePiece));
-        commands.spawn((BlockBundle::new(spawn_pos.x + BLOCK_SIZE * 2.0, spawn_pos.y, color, 1), ActivePiece));
-        commands.spawn((BlockBundle::new(spawn_pos.x + BLOCK_SIZE, spawn_pos.y + BLOCK_SIZE, color, 1), ActivePiece));
+        commands
+            .spawn(SpatialBundle::default())
+            .insert(ActivePiece)
+            .with_children(|parent| {
+                parent.spawn(BlockBundle::new(spawn_pos.x, spawn_pos.y, color));
+                parent.spawn(BlockBundle::new(spawn_pos.x + BLOCK_SIZE, spawn_pos.y, color));
+                parent.spawn(BlockBundle::new(spawn_pos.x + BLOCK_SIZE * 2.0, spawn_pos.y, color));
+                parent.spawn(BlockBundle::new(spawn_pos.x + BLOCK_SIZE, spawn_pos.y + BLOCK_SIZE, color));
+            });
     }
 }
 
@@ -167,7 +200,8 @@ fn spawn_first_piece(
 
 fn move_piece(
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<&mut Transform, With<ActivePiece>>,
+    mut query: Query<(&mut Transform, &Children), With<ActivePiece>>,
+    mut children_query: Query<&mut Transform, Without<ActivePiece>>,
     time: Res<Time>,
     mut move_timeout: ResMut<MoveTimeout>,
     mut rotate_timeout: ResMut<RotateTimeout>,
@@ -188,35 +222,31 @@ fn move_piece(
         }
     }
 
+    let (mut transform, children) = query.single_mut();
     if rotate_timeout.0.tick(time.delta()).finished() {
         if keyboard_input.pressed(KeyCode::Up) {
-            let pivot = query.iter().nth(0).unwrap().translation;
+            let pivot = children_query.get(*children.iter().nth(0).unwrap()).unwrap().translation;
             let rotation = Quat::from_rotation_z(90.0f32.to_radians());
-            for mut transform in query.iter_mut() {
-                transform.rotate_around(pivot, rotation);
+            for &child in children {
+                if let Ok(mut child_transform) = children_query.get_mut(child) {
+                    child_transform.rotate_around(pivot, rotation);
+                }
             }
             rotate_timeout.0.reset();
         }
     }
 
-    /* let pivot = query.iter().nth(0).unwrap().1.translation;
-    let rotation = Quat::from_rotation_z(90.0f32.to_radians()); */
-
-    for mut transform in query.iter_mut() {
-        if move_left {
-            transform.translation.x -= BLOCK_SIZE;
-        }
-        if move_right {
-            transform.translation.x += BLOCK_SIZE;
-        }
-
-        //transform.rotate_around(pivot, rotation);
+    if move_left {
+        transform.translation.x -= BLOCK_SIZE;
+    }
+    if move_right {
+        transform.translation.x += BLOCK_SIZE;
     }
 }
 
 fn check_movement(
-    mut active_blocks_query: Query<&Transform, With<ActivePiece>>,
-    mut inactive_blocks_query: Query<&Transform, (With<Block>, Without<ActivePiece>)>,
+    mut active_blocks_query: Query<&Transform, (With<Block>, With<Parent>)>,
+    mut inactive_blocks_query: Query<&Transform, (With<Block>, Without<Parent>)>,
     mut allow_left: ResMut<AllowLeft>,
     mut allow_right: ResMut<AllowRight>,
 ) {
@@ -247,8 +277,9 @@ fn check_movement(
 
 fn fall_down(
     mut commands: Commands,
-    mut active_blocks_query: Query<(Entity, &mut Transform), With<ActivePiece>>,
-    mut inactive_blocks_query: Query<&Transform, (With<Block>, Without<ActivePiece>)>,
+    mut active_piece_query: Query<Entity, With<ActivePiece>>,
+    //mut active_blocks_query: Query<(Entity, &mut Transform), (With<Block>, With<Parent>)>,
+    mut blocks: Query<&Transform, With<Block>>,
     time: Res<Time>,
     mut tick_timer: ResMut<TickTimer>,
 ) {
@@ -270,19 +301,17 @@ fn fall_down(
         if active_transform.translation.y - BLOCK_SIZE <= ARENA_START.y - ARENA_HEIGHT {
             still_active = false;
         }
-        if !still_active {
-            break;
-        }
     }
 
     if !still_active {
-        for (entity, _) in active_blocks_query.iter_mut() {
-            commands.entity(entity).remove::<ActivePiece>();
-        }
+        /* for (active_entity, _) in active_blocks_query.iter_mut() {
+            commands.entity(active_entity).remove::<Parent>();
+        } */
+        commands.entity(active_piece_query.single_mut()).remove::<ActivePiece>();
         spawn_rand_piece(commands);
     } else {
-        for (_, mut transform) in active_blocks_query.iter_mut() {
-            transform.translation.y -= 10.0;
+        for (_, mut active_transform) in active_blocks_query.iter_mut() {
+            active_transform.translation.y -= BLOCK_SIZE;
         }
     }
 }
