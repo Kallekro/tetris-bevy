@@ -245,30 +245,38 @@ fn move_piece(
 }
 
 fn check_movement(
-    mut active_blocks_query: Query<&Transform, (With<Block>, With<Parent>)>,
-    mut inactive_blocks_query: Query<&Transform, (With<Block>, Without<Parent>)>,
+    block_query: Query<&GlobalTransform, With<Block>>,
+    active_piece_query: Query<&Children, With<ActivePiece>>,
+    inactive_pieces_query: Query<&Children, Without<ActivePiece>>,
     mut allow_left: ResMut<AllowLeft>,
     mut allow_right: ResMut<AllowRight>,
 ) {
     allow_left.0 = true;
     allow_right.0 = true;
-    for active_transform in active_blocks_query.iter_mut() {
-        // Check if active block is at edge of arena
-        if active_transform.translation.x == ARENA_START.x {
+
+    let active_children = active_piece_query.single();
+    for &active_child in active_children.iter() {
+        let active_block = block_query.get(active_child).unwrap();
+
+        // Check if active block is at the edge of the arena
+        if active_block.translation().x == ARENA_START.x {
             allow_left.0 = false;
         }
-        if active_transform.translation.x == ARENA_START.x + ARENA_WIDTH - BLOCK_SIZE {
+        if active_block.translation().x == ARENA_START.x + ARENA_WIDTH - BLOCK_SIZE {
             allow_right.0 = false;
         }
 
-        for inactive_transform in inactive_blocks_query.iter_mut() {
-            // Check if active block is next to inactive block
-            if active_transform.translation.y == inactive_transform.translation.y {
-                if active_transform.translation.x - BLOCK_SIZE == inactive_transform.translation.x {
-                    allow_left.0 = false;
-                }
-                if active_transform.translation.x + BLOCK_SIZE == inactive_transform.translation.x {
-                    allow_right.0 = false;
+        for inactive_children in inactive_pieces_query.iter() {
+            for &inactive_child in inactive_children.iter() {
+                let inactive_block = block_query.get(inactive_child).unwrap();
+                // Check if active block is next to inactive block
+                if active_block.translation().y == inactive_block.translation().y {
+                    if active_block.translation().x - BLOCK_SIZE == inactive_block.translation().x {
+                        allow_left.0 = false;
+                    }
+                    if active_block.translation().x + BLOCK_SIZE == inactive_block.translation().x {
+                        allow_right.0 = false;
+                    }
                 }
             }
         }
@@ -277,9 +285,9 @@ fn check_movement(
 
 fn fall_down(
     mut commands: Commands,
-    mut active_piece_query: Query<Entity, With<ActivePiece>>,
-    //mut active_blocks_query: Query<(Entity, &mut Transform), (With<Block>, With<Parent>)>,
-    mut blocks: Query<&Transform, With<Block>>,
+    block_query: Query<&GlobalTransform, With<Block>>,
+    mut active_piece_query: Query<(Entity, &mut Transform, &mut Children), With<ActivePiece>>,
+    inactive_pieces_query: Query<&Children, Without<ActivePiece>>,
     time: Res<Time>,
     mut tick_timer: ResMut<TickTimer>,
 ) {
@@ -288,30 +296,32 @@ fn fall_down(
     }
 
     let mut still_active = true;
+    let (active_entity, mut active_transform, active_children) = active_piece_query.single_mut();
 
-    for (_, active_transform) in active_blocks_query.iter_mut() {
-        for inactive_transform in inactive_blocks_query.iter_mut() {
-            // Check if active block is above inactive block before falling
-            if active_transform.translation.y - BLOCK_SIZE == inactive_transform.translation.y && active_transform.translation.x == inactive_transform.translation.x {
-                still_active = false;
+    for &active_child in active_children.iter() {
+        let active_block = block_query.get(active_child).unwrap();
+        for inactive_children in inactive_pieces_query.iter() {
+            for &inactive_child in inactive_children.iter() {
+                let inactive_block = block_query.get(inactive_child).unwrap();
+                // Check if active block is above inactive block before falling
+                if active_block.translation().y - BLOCK_SIZE == inactive_block.translation().y && active_block.translation().x == inactive_block.translation().x {
+                    still_active = false;
+                    break;
+                }
+            }
+            if !still_active {
                 break;
             }
         }
-        // Check if active block is at bottom of arena before falling
-        if active_transform.translation.y - BLOCK_SIZE <= ARENA_START.y - ARENA_HEIGHT {
+        if active_block.translation().y - BLOCK_SIZE <= ARENA_START.y - ARENA_HEIGHT {
             still_active = false;
+            break;
         }
     }
-
     if !still_active {
-        /* for (active_entity, _) in active_blocks_query.iter_mut() {
-            commands.entity(active_entity).remove::<Parent>();
-        } */
-        commands.entity(active_piece_query.single_mut()).remove::<ActivePiece>();
+        commands.entity(active_entity).remove::<ActivePiece>();
         spawn_rand_piece(commands);
     } else {
-        for (_, mut active_transform) in active_blocks_query.iter_mut() {
-            active_transform.translation.y -= BLOCK_SIZE;
-        }
+        active_transform.translation.y -= BLOCK_SIZE;
     }
 }
